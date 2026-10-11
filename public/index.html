@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>出品スケジューラー</title>
+<style>
+  :root{
+    --bg:#111418; --panel:#181d23; --panel2:#1f262e; --line:#2b333d; --line2:#3a444f;
+    --ink:#e9edf1; --mut:#8c98a6; --mut2:#5f6b78;
+    --accent:#ff5a3c; --accent-ink:#fff;
+    --ok:#36c08a; --warn:#f0b429; --bad:#f0574e; --info:#4b9fff;
+    --r:12px; --r2:9px;
+    box-sizing:border-box; padding-top:env(safe-area-inset-top,0); padding-bottom:env(safe-area-inset-bottom,0);
+    font-family:"Hiragino Kaku Gothic ProN","Noto Sans JP",system-ui,-apple-system,"Segoe UI",sans-serif;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{background:var(--bg);color:var(--ink);font-size:15px;line-height:1.6;-webkit-text-size-adjust:100%}
+  button{font-family:inherit;cursor:pointer}
+  input,select,textarea{font-family:inherit;font-size:15px}
+  a{color:var(--info)}
+  .wrap{max-width:860px;margin:0 auto;padding:18px 16px 80px}
+  h1{font-size:20px;margin:0;letter-spacing:.02em;font-weight:700}
+  h1 b{color:var(--accent)}
+  .sub{color:var(--mut);font-size:12.5px;margin-top:2px}
+  .hd{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px}
+  .dot{width:9px;height:9px;border-radius:50%;display:inline-block;vertical-align:middle;margin-right:6px}
+  .run{background:var(--ok);box-shadow:0 0 0 4px rgba(54,192,138,.16)}
+  .pause{background:var(--mut2)}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:16px;margin-bottom:14px}
+  .card h2{font-size:14px;margin:0 0 12px;font-weight:600;letter-spacing:.03em}
+  .card h2 .q{color:var(--mut2);font-weight:400;font-size:12px;margin-left:6px}
+  label{display:block;font-size:12.5px;color:var(--mut);margin:0 0 5px}
+  .field{margin-bottom:12px}
+  input[type=text],input[type=number],input[type=password],input[type=time],select,textarea{
+    width:100%;background:var(--panel2);border:1px solid var(--line2);color:var(--ink);
+    border-radius:var(--r2);padding:10px 12px;outline:none}
+  input:focus,select:focus,textarea:focus{border-color:var(--accent)}
+  textarea{resize:vertical;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12.5px;line-height:1.5}
+  .row{display:flex;gap:10px;flex-wrap:wrap}
+  .row>*{flex:1;min-width:120px}
+  .btn{background:var(--panel2);border:1px solid var(--line2);color:var(--ink);border-radius:var(--r2);padding:10px 16px;font-size:14px;font-weight:600}
+  .btn:hover{border-color:var(--mut)}
+  .btn:active{transform:translateY(1px)}
+  .btn.p{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+  .btn.p:hover{filter:brightness(1.08)}
+  .btn.sm{padding:6px 11px;font-size:12.5px;font-weight:500}
+  .btn.gho{background:transparent;border-color:transparent;color:var(--mut)}
+  .btn.gho:hover{color:var(--ink);background:var(--panel2)}
+  .btn:disabled{opacity:.45;cursor:default;transform:none}
+  .tabs{display:flex;gap:4px;background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:4px;margin-bottom:16px;position:sticky;top:env(safe-area-inset-top,0);z-index:5}
+  .tabs button{flex:1;background:transparent;border:0;color:var(--mut);padding:9px 6px;border-radius:8px;font-size:13px;font-weight:600}
+  .tabs button.on{background:var(--panel2);color:var(--ink)}
+  .pill{display:inline-block;font-size:11px;padding:2px 8px;border-radius:999px;border:1px solid var(--line2);color:var(--mut)}
+  .pill.ok{color:var(--ok);border-color:rgba(54,192,138,.4)}
+  .pill.off{color:var(--mut2)}
+  .pill.rep{color:var(--info);border-color:rgba(75,159,255,.4)}
+  .muted{color:var(--mut);font-size:12.5px}
+  .banner{border-radius:var(--r);padding:12px 14px;margin-bottom:14px;font-size:13.5px;display:flex;gap:10px;align-items:flex-start}
+  .banner.bad{background:rgba(240,87,78,.12);border:1px solid rgba(240,87,78,.4)}
+  .banner.warn{background:rgba(240,180,41,.1);border:1px solid rgba(240,180,41,.35)}
+  .banner.info{background:rgba(75,159,255,.1);border:1px solid rgba(75,159,255,.3)}
+  .banner .x{margin-left:auto}
+  .dl{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;font-size:13px}
+  .dl dt{color:var(--mut)}
+  .dl dd{margin:0;text-align:right}
+  .draft{border:1px solid var(--line);border-radius:var(--r2);padding:11px 13px;margin-bottom:9px;background:var(--panel2)}
+  .draft.dis{opacity:.5}
+  .draft .top{display:flex;align-items:center;gap:9px}
+  .draft .nm{font-weight:600;font-size:14px;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .draft .meta{font-size:11.5px;color:var(--mut);margin-top:3px}
+  .draft .acts{display:flex;gap:4px;margin-top:9px;flex-wrap:wrap}
+  .grip{color:var(--mut2);cursor:grab;font-size:16px;line-height:1;touch-action:none;padding:0 2px}
+  .next{outline:2px solid var(--accent);outline-offset:-1px}
+  .slots{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+  .slot{font-size:12px;padding:3px 9px;border-radius:7px;border:1px solid var(--line2);color:var(--mut);font-variant-numeric:tabular-nums}
+  .slot.done{background:rgba(54,192,138,.15);border-color:transparent;color:var(--ok)}
+  .slot.failed{background:rgba(240,87,78,.15);border-color:transparent;color:var(--bad)}
+  .slot.skipped{color:var(--mut2);text-decoration:line-through}
+  .slot.now{outline:2px solid var(--accent);outline-offset:1px}
+  .log{display:flex;gap:10px;padding:9px 2px;border-bottom:1px solid var(--line);font-size:12.5px;align-items:flex-start}
+  .log .t{color:var(--mut);white-space:nowrap;font-variant-numeric:tabular-nums}
+  .log .m{flex:1;min-width:0}
+  .ico{width:7px;height:7px;border-radius:50%;margin-top:7px;flex:none}
+  .ico.ok{background:var(--ok)} .ico.ng{background:var(--bad)}
+  .heat{overflow-x:auto;margin:0 -4px}
+  .heat table{border-collapse:collapse;font-size:10px;margin:0 4px}
+  .heat td,.heat th{width:15px;height:17px;text-align:center;color:var(--mut)}
+  .heat th{font-weight:400;color:var(--mut2)}
+  .heat td.c{border-radius:3px}
+  .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--panel2);border:1px solid var(--line2);color:var(--ink);padding:11px 18px;border-radius:999px;font-size:13px;z-index:50;box-shadow:0 8px 24px rgba(0,0,0,.4);max-width:90%;opacity:0;transition:opacity .2s,transform .2s;pointer-events:none}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  .toast.bad{border-color:var(--bad)}
+  .center{text-align:center;color:var(--mut);padding:26px 0}
+  .switch{display:inline-flex;align-items:center;gap:8px;cursor:pointer;user-select:none}
+  .switch input{display:none}
+  .track{width:40px;height:23px;border-radius:999px;background:var(--line2);position:relative;transition:background .15s;flex:none}
+  .track::after{content:"";position:absolute;top:2px;left:2px;width:19px;height:19px;border-radius:50%;background:#fff;transition:left .15s}
+  .switch input:checked+.track{background:var(--ok)}
+  .switch input:checked+.track::after{left:19px}
+  code{background:var(--panel2);padding:1px 6px;border-radius:5px;font-size:12px}
+  .hide{display:none!important}
+  details.help{margin-top:8px}
+  details.help summary{color:var(--info);font-size:12.5px;cursor:pointer}
+  details.help div{font-size:12.5px;color:var(--mut);margin-top:7px;line-height:1.7}
+  ol{margin:6px 0;padding-left:20px} ol li{margin-bottom:4px}
+</style>
+</head>
+<body>
+<div id="login" class="wrap">
+  <div class="hd"><div><h1>出品<b>スケジューラー</b></h1><div class="sub">ゲームクラブ 自動出品ツール</div></div></div>
+  <div class="card">
+    <div class="field">
+      <label>管理パスワード</label>
+      <input type="password" id="pw" placeholder="Netlifyで設定したADMIN_PASSWORD">
+    </div>
+    <button class="btn p" id="loginBtn" style="width:100%">ログイン</button>
+    <div class="muted" style="margin-top:10px" id="loginMsg"></div>
+  </div>
+</div>
+
+<div id="app" class="wrap hide">
+  <div class="hd">
+    <div><h1>出品<b>スケジューラー</b></h1><div class="sub" id="statusLine">読み込み中…</div></div>
+    <button class="btn gho sm" id="logout">ログアウト</button>
+  </div>
+  <div id="banners"></div>
+  <div class="tabs">
+    <button data-tab="home" class="on">ホーム</button>
+    <button data-tab="drafts">下書き</button>
+    <button data-tab="schedule">時間設定</button>
+    <button data-tab="analysis">分析</button>
+    <button data-tab="settings">設定</button>
+  </div>
+  <div id="tab-home" class="tab"></div>
+  <div id="tab-drafts" class="tab hide"></div>
+  <div id="tab-schedule" class="tab hide"></div>
+  <div id="tab-analysis" class="tab hide"></div>
+  <div id="tab-settings" class="tab hide"></div>
+</div>
+<div class="toast" id="toast"></div>
+<script src="/app.js"></script>
+</body>
+</html>
