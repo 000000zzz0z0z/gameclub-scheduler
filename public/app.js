@@ -27,7 +27,7 @@ async function api(path, opts = {}) {
 
 // ---- ログイン ----
 $("#loginBtn").onclick = tryLogin;
-$("#pw").onkeydown = (e) => e.key === "Enter" && tryLogin();
+$("#pw").addEventListener("keydown", (e) => { if (e.key === "Enter") tryLogin(); });
 async function tryLogin() {
   pw = $("#pw").value.trim();
   if (!pw) return;
