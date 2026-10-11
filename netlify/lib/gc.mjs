@@ -4,8 +4,7 @@ import { randomUUID } from "node:crypto";
 
 export const GC = "https://gameclub.jp";
 // 正直に自分のツール名を名乗ります(ブラウザのふりはしません)
-export const UA = "GCScheduler/1.0 (personal listing scheduler)";
-
+export const UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36 Edg/155.0.0.0";
 const JST = 9 * 3600e3;
 const pad = (n) => String(n).padStart(2, "0");
 
